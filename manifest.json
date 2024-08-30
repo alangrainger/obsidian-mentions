@@ -1,0 +1,11 @@
+{
+	"id": "mentions",
+	"name": "@-mentions",
+	"version": "1.0.0",
+	"minAppVersion": "1.6.0",
+	"description": "",
+	"author": "Alan Grainger",
+	"authorUrl": "https://github.com/alangrainger",
+	"fundingUrl": "https://ko-fi.com/alan_",
+	"isDesktopOnly": false
+}
