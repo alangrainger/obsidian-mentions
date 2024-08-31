@@ -1,9 +1,15 @@
-import { Plugin, TFile } from 'obsidian'
+import { Editor, MarkdownView, Plugin, TFile } from 'obsidian'
+import { PeopleChooser } from './chooser'
+import { DEFAULT_SETTINGS, MentionsSettings, MentionsSettingTab } from './settings'
 
 export default class MentionsPlugin extends Plugin {
+  settings: MentionsSettings
   status: HTMLSpanElement
 
   async onload () {
+    await this.loadSettings()
+    this.addSettingTab(new MentionsSettingTab(this.app, this))
+
     const item = this.addStatusBarItem();
     this.status = item.createEl("span");
 
@@ -14,12 +20,22 @@ export default class MentionsPlugin extends Plugin {
     this.registerEvent(this.app.workspace.on('file-open', (file) => {
       if (file) this.updateStatus(file)
     }))
+
+    this.addCommand({
+      id: 'mention-person',
+      name: '@-mention person',
+      editorCallback: async (editor: Editor, _view: MarkdownView) => {
+        if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
+          new PeopleChooser(this, editor).open()
+        }
+      }
+    })
   }
 
   updateStatus (file: TFile) {
-    const cache = this.app.metadataCache.getFileCache(  file)
+    const cache = this.app.metadataCache.getFileCache(file)
     const people = cache?.links
-      ?.filter(link => link.link.includes('👤'))
+      ?.filter(link => link.link.startsWith(this.settings.prefix))
       ?.map(link => link.link)
       ?.sort((a, b) => a.localeCompare(b))
 
@@ -30,5 +46,13 @@ export default class MentionsPlugin extends Plugin {
     if (this.status.textContent !== status) {
       this.status.textContent = status
     }
+  }
+
+  async loadSettings () {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
+  }
+
+  async saveSettings () {
+    await this.saveData(this.settings)
   }
 }
