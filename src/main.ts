@@ -2,16 +2,27 @@ import { Editor, MarkdownView, Plugin, TFile } from 'obsidian'
 import { PeopleChooser } from './chooser'
 import { DEFAULT_SETTINGS, MentionsSettings, MentionsSettingTab } from './settings'
 
+export interface PersonFile {
+  file: TFile;
+  search: string;
+  inlinks: number; // Number of notes linking to this file
+}
+
 export default class MentionsPlugin extends Plugin {
   settings: MentionsSettings
   status: HTMLSpanElement
+  people: PersonFile[]
 
   async onload () {
     await this.loadSettings()
     this.addSettingTab(new MentionsSettingTab(this.app, this))
 
-    const item = this.addStatusBarItem();
-    this.status = item.createEl("span");
+    // Populate the people array. This happens only on plugin startup to improve suggest modal
+    // response time.
+    this.getPeople()
+
+    const item = this.addStatusBarItem()
+    this.status = item.createEl('span')
 
     this.registerEvent(this.app.workspace.on('editor-change', (_editor, info) => {
       if (info.file instanceof TFile) this.updateStatus(info.file)
@@ -23,12 +34,18 @@ export default class MentionsPlugin extends Plugin {
 
     this.addCommand({
       id: 'mention-person',
-      name: '@-mention person',
+      name: 'Mention person',
       editorCallback: async (editor: Editor, _view: MarkdownView) => {
         if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
           new PeopleChooser(this, editor).open()
         }
       }
+    })
+
+    this.addCommand({
+      id: 'update',
+      name: 'Update people',
+      callback: () => this.getPeople()
     })
   }
 
@@ -54,5 +71,23 @@ export default class MentionsPlugin extends Plugin {
 
   async saveSettings () {
     await this.saveData(this.settings)
+  }
+
+  /**
+   * Get a list of all people in the vault, ordered by number of notes linking to this person descending
+   */
+  getPeople () {
+    const people: PersonFile[] = []
+    this.app.vault.getFolderByPath('People')?.children.forEach(child => {
+      if (child instanceof TFile && child.extension === 'md') {
+        people.push({
+          file: child,
+          search: child.basename.toLowerCase(),
+          inlinks: Object.keys(this.app.metadataCache.getBacklinksForFile(child).data).length
+        })
+      }
+    })
+    people.sort((a, b) => b.inlinks - a.inlinks)
+    this.people = people
   }
 }
