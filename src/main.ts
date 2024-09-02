@@ -18,8 +18,7 @@ export default class MentionsPlugin extends Plugin {
     await this.loadSettings()
     this.addSettingTab(new MentionsSettingTab(this.app, this))
 
-    // Populate the people array. This happens only on plugin startup to improve suggest modal
-    // response time.
+    // Populate the people array. This happens only on plugin startup to improve suggest modal response time.
     this.getPeople()
 
     const item = this.addStatusBarItem()
@@ -84,7 +83,7 @@ export default class MentionsPlugin extends Plugin {
   getPeople () {
     const people: PersonFile[] = []
     this.app.vault.getFolderByPath(this.settings.peopleFolder)?.children.forEach(child => {
-      if (child instanceof TFile && child.extension === 'md') {
+      if (child instanceof TFile && child.extension === 'md' && child.basename.startsWith(this.settings.prefix)) {
         people.push({
           file: child,
           search: child.basename.toLowerCase(),
