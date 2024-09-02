@@ -12,6 +12,7 @@ export default class MentionsPlugin extends Plugin {
   settings: MentionsSettings
   status: HTMLSpanElement
   people: PersonFile[]
+  lastChecked = 0
 
   async onload () {
     await this.loadSettings()
@@ -25,7 +26,11 @@ export default class MentionsPlugin extends Plugin {
     this.status = item.createEl('span')
 
     this.registerEvent(this.app.workspace.on('editor-change', (_editor, info) => {
-      if (info.file instanceof TFile) this.updateStatus(info.file)
+      // Update only once every 5 seconds to reduce load
+      if (info.file instanceof TFile && Date.now() > this.lastChecked + 5000) {
+        this.lastChecked = Date.now()
+        this.updateStatus(info.file)
+      }
     }))
 
     this.registerEvent(this.app.workspace.on('file-open', (file) => {
@@ -78,7 +83,7 @@ export default class MentionsPlugin extends Plugin {
    */
   getPeople () {
     const people: PersonFile[] = []
-    this.app.vault.getFolderByPath('People')?.children.forEach(child => {
+    this.app.vault.getFolderByPath(this.settings.peopleFolder)?.children.forEach(child => {
       if (child instanceof TFile && child.extension === 'md') {
         people.push({
           file: child,

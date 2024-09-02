@@ -3,10 +3,12 @@ import MentionsPlugin from './main'
 
 export interface MentionsSettings {
   prefix: string;
+  peopleFolder: string;
 }
 
 export const DEFAULT_SETTINGS: MentionsSettings = {
-  prefix: '👤'
+  prefix: '👤',
+  peopleFolder: 'People'
 }
 
 export class MentionsSettingTab extends PluginSettingTab {
@@ -21,6 +23,15 @@ export class MentionsSettingTab extends PluginSettingTab {
     const { containerEl } = this
 
     containerEl.empty()
+
+    new Setting(containerEl)
+      .setName('People folder')
+      .addText(text => text
+        .setValue(this.plugin.settings.peopleFolder)
+        .onChange(async value => {
+          this.plugin.settings.peopleFolder = value
+          await this.plugin.saveSettings()
+        }))
 
     new Setting(containerEl)
       .setName('Link prefix')
