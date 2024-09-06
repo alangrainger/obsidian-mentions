@@ -20,3 +20,15 @@ It also works fine in the filenames of notes in your file browser.
 Then in the status bar of your note you'll see all the people you mentioned:
 
 <img src="./docs/status-bar.png" style="width: 490px">
+
+## Installation
+
+You will need to install this plugin with BRAT, as it's not in the community plugin store.
+
+1. Install BRAT from the Community Plugins store ([direct link](https://obsidian.md/plugins?id=obsidian42-brat)).
+
+2. Go into the settings for BRAT and choose **Add Beta plugin**.
+
+3. Paste in `https://github.com/alangrainger/obsidian-mentions` and click **Add Plugin**.
+
+4. Go back to the Plugins settings page, and enable the **Lazy Plugin Loader** plugin:
