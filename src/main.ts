@@ -18,7 +18,7 @@ export default class MentionsPlugin extends Plugin {
     await this.loadSettings()
     this.addSettingTab(new MentionsSettingTab(this.app, this))
 
-    // Populate the people array. This happens only on plugin startup to improve suggest modal response time.
+    // Populate the people array
     this.getPeople()
 
     const item = this.addStatusBarItem()
@@ -42,17 +42,16 @@ export default class MentionsPlugin extends Plugin {
       editorCallback: async (editor: Editor, _view: MarkdownView) => {
         if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
           new PeopleChooser(this, editor).open()
+          // This comes after opening the modal so it doesn't slow down opening
+          this.getPeople()
         }
       }
     })
-
-    this.addCommand({
-      id: 'update',
-      name: 'Update people',
-      callback: () => this.getPeople()
-    })
   }
 
+  /**
+   * Update the status bar at the bottom of Obsidian to show the people mentioned in the current note
+   */
   updateStatus (file: TFile) {
     const cache = this.app.metadataCache.getFileCache(file)
     const people = cache?.links
