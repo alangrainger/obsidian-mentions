@@ -4,7 +4,7 @@ This is a quick personal plugin to give me a list of people to @-mention.
 
 I bind the `Mention person` command to Alt+2, which is very close to Shift+2, aka the `@` symbol. This way it's almost like @-ing someone to get the popup list. 
 
-<img src="./docs/demo.gif" style="width: 380px">
+<img src="./docs/demo.gif" style="width: 500px">
 
 I have a People folder with a note for each person I reference, and the plugin automatically populates the suggestion modal with every note in that folder.
 
