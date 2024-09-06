@@ -43,7 +43,7 @@ export default class MentionsPlugin extends Plugin {
         if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
           new PeopleChooser(this, editor).open()
           // This comes after opening the modal so it doesn't slow down opening
-          this.getPeople()
+          setTimeout(() => this.getPeople(), 50)
         }
       }
     })
