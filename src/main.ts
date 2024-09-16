@@ -42,6 +42,8 @@ export default class MentionsPlugin extends Plugin {
       editorCallback: async (editor: Editor, _view: MarkdownView) => {
         if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
           new PeopleChooser(this, editor).open()
+          // This comes after opening the modal so it doesn't slow down opening
+          setTimeout(() => this.getPeople(), 1000)
         }
       }
     })
