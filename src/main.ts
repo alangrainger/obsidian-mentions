@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS, MentionsSettings, MentionsSettingTab } from './settin
 export interface PersonFile {
   file: TFile;
   search: string;
-  inlinks: number; // Number of notes linking to this file
+  lastMentioned: string;
 }
 
 export default class MentionsPlugin extends Plugin {
@@ -42,10 +42,14 @@ export default class MentionsPlugin extends Plugin {
       editorCallback: async (editor: Editor, _view: MarkdownView) => {
         if (this.app.workspace.getActiveViewOfType(MarkdownView)) {
           new PeopleChooser(this, editor).open()
-          // This comes after opening the modal so it doesn't slow down opening
-          setTimeout(() => this.getPeople(), 50)
         }
       }
+    })
+
+    this.addCommand({
+      id: 'update-people',
+      name: 'Update people',
+      callback: () => this.getPeople()
     })
   }
 
@@ -81,16 +85,19 @@ export default class MentionsPlugin extends Plugin {
    */
   getPeople () {
     const people: PersonFile[] = []
-    this.app.vault.getFolderByPath(this.settings.peopleFolder)?.children.forEach(child => {
+    for (const child of this.app.vault.getFolderByPath(this.settings.peopleFolder)?.children || []) {
       if (child instanceof TFile && child.extension === 'md' && child.basename.startsWith(this.settings.prefix)) {
+        // Get the last mentioned time (if any) from the Person note frontmatter
+        const lastMentioned = this.app.metadataCache.getFileCache(child)?.frontmatter?.[this.settings.lastMentioned] || '0'
+
         people.push({
           file: child,
           search: child.basename.toLowerCase(),
-          inlinks: Object.keys(this.app.metadataCache.getBacklinksForFile(child).data).length
+          lastMentioned
         })
       }
-    })
-    people.sort((a, b) => b.inlinks - a.inlinks)
+    }
+    people.sort((a, b) => b.lastMentioned.localeCompare(a.lastMentioned))
     this.people = people
   }
 }

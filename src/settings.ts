@@ -4,11 +4,15 @@ import MentionsPlugin from './main'
 export interface MentionsSettings {
   prefix: string;
   peopleFolder: string;
+  lastMentioned: string;
+  lastMentionedIn: string;
 }
 
 export const DEFAULT_SETTINGS: MentionsSettings = {
   prefix: '👤',
-  peopleFolder: 'People'
+  peopleFolder: 'People',
+  lastMentioned: 'last_mentioned',
+  lastMentionedIn: 'last_mentioned_in'
 }
 
 export class MentionsSettingTab extends PluginSettingTab {

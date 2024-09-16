@@ -1,4 +1,4 @@
-import { Editor, SuggestModal } from 'obsidian'
+import { Editor, SuggestModal, moment } from 'obsidian'
 import MentionsPlugin, { PersonFile } from './main'
 
 export class PeopleChooser extends SuggestModal<any> {
@@ -21,5 +21,11 @@ export class PeopleChooser extends SuggestModal<any> {
 
   onChooseSuggestion (item: PersonFile, _evt: MouseEvent | KeyboardEvent) {
     this.editor.replaceSelection(`[[${item.file.basename}]] `)
+
+    // Update the last mentioned date and file in the Person note
+    this.app.fileManager.processFrontMatter(item.file, frontmatter => {
+      frontmatter[this.plugin.settings.lastMentioned] = moment().format()
+      frontmatter[this.plugin.settings.lastMentionedIn] = this.app.workspace.getActiveFile()?.path
+    }).then().catch()
   }
 }
