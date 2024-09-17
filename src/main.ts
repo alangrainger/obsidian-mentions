@@ -61,8 +61,8 @@ export default class MentionsPlugin extends Plugin {
   updateStatus (file: TFile) {
     const cache = this.app.metadataCache.getFileCache(file)
     const people = cache?.links
-      ?.filter(link => link.link.startsWith(this.settings.prefix))
-      ?.map(link => link.link)
+      ?.filter(link => link.displayText?.startsWith(this.settings.prefix))
+      ?.map(link => link.displayText || '')
       ?.sort((a, b) => a.localeCompare(b))
 
     const status = people ? [...new Set(people)].join(' ') : '' // Set() to remove any duplicates
